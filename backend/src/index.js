@@ -4,15 +4,25 @@ const cors    = require('cors');
 
 const app = express();
 
+// Aceita múltiplas origens separadas por vírgula em FRONTEND_URL
+const extraOrigins = (process.env.FRONTEND_URL || '')
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
+
 const allowedOrigins = [
   'http://localhost:5173',
-  process.env.FRONTEND_URL,
-].filter(Boolean);
+  'http://localhost:3000',
+  ...extraOrigins,
+];
+
+console.log('✅ CORS origens permitidas:', allowedOrigins);
 
 app.use(cors({
   origin: (origin, cb) => {
-    // Permite requisições sem origin (ex: curl, mobile) e origens permitidas
+    // Permite requisições sem origin (ex: curl, Postman) e origens configuradas
     if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    console.warn(`🚫 CORS bloqueado: ${origin}`);
     cb(new Error(`CORS bloqueado: ${origin}`));
   },
   credentials: true,
