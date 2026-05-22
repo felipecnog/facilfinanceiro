@@ -96,7 +96,17 @@ export default function ContaForm({ modo }: { modo: 'criar' | 'editar' | 'pagar'
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
 
   useEffect(() => {
-    if (conta) reset({ ...conta, valor: String(conta.valor).replace('.',','), categoria_id: String(conta.categoria_id ?? ''), fornecedor_id: String(conta.fornecedor_id ?? ''), recorrente: conta.recorrente === 1 })
+    if (conta) reset({
+      descricao:        conta.descricao,
+      valor:            String(conta.valor).replace('.', ','),
+      data_vencimento:  conta.data_vencimento,
+      categoria_id:     String(conta.categoria_id ?? ''),
+      fornecedor_id:    String(conta.fornecedor_id ?? ''),
+      fornecedor_livre: conta.fornecedor_livre ?? undefined,
+      numero_documento: conta.numero_documento ?? undefined,
+      recorrente:       conta.recorrente === 1,
+      observacoes:      conta.observacoes ?? undefined,
+    })
   }, [conta])
 
   const salvar = useMutation({
