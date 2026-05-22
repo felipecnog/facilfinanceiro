@@ -4,7 +4,19 @@ const cors    = require('cors');
 
 const app = express();
 
-app.use(cors({ origin: 'http://localhost:5173' }));
+const allowedOrigins = [
+  'http://localhost:5173',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, cb) => {
+    // Permite requisições sem origin (ex: curl, mobile) e origens permitidas
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    cb(new Error(`CORS bloqueado: ${origin}`));
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 // Rotas
