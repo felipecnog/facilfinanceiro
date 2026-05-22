@@ -19,7 +19,7 @@ function StatCard({ label, value, sub, color, icon: Icon }:
 }
 
 export default function Dashboard() {
-  const { data, isLoading } = useQuery<DashboardData>({
+  const { data, isLoading, isError, error } = useQuery<DashboardData>({
     queryKey: ['dashboard'],
     queryFn: () => api.get('/dashboard').then(r => r.data),
     refetchInterval: 60_000,
@@ -31,7 +31,20 @@ export default function Dashboard() {
     </div>
   )
 
-  const t = data!.totais
+  if (isError || !data) return (
+    <div className="flex flex-col items-center justify-center h-48 gap-3">
+      <div className="text-red-400 text-3xl">⚠️</div>
+      <p className="text-sm font-semibold text-gray-700">Não foi possível conectar à API</p>
+      <p className="text-xs text-gray-400 max-w-sm text-center">
+        {(error as Error)?.message || 'Verifique se a variável VITE_API_URL está configurada corretamente no EasyPanel.'}
+      </p>
+      <button onClick={() => window.location.reload()} className="btn btn-primary btn-sm mt-1">
+        Tentar novamente
+      </button>
+    </div>
+  )
+
+  const t = data.totais
   const totalGeral = Number(t.total_aberto)
 
   return (
@@ -53,7 +66,7 @@ export default function Dashboard() {
               Ver todas <ArrowRight size={12} />
             </Link>
           </div>
-          {data!.proximas.length === 0 ? (
+          {data.proximas.length === 0 ? (
             <div className="text-center py-12 text-gray-400 text-sm">✓ Nenhuma conta vence nos próximos 7 dias</div>
           ) : (
             <div className="overflow-x-auto">
@@ -68,7 +81,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data!.proximas.map(c => {
+                  {data.proximas.map(c => {
                     const hoje = new Date().toISOString().split('T')[0]
                     const isHoje = c.data_vencimento === hoje
                     return (
@@ -104,11 +117,11 @@ export default function Dashboard() {
         {/* Por Categoria */}
         <div className="card p-5">
           <h2 className="font-semibold text-sm text-gray-700 mb-4">📊 Em aberto por categoria</h2>
-          {data!.porCategoria.length === 0 ? (
+          {data.porCategoria.length === 0 ? (
             <p className="text-sm text-gray-400">Nenhum dado.</p>
           ) : (
             <div className="space-y-4">
-              {data!.porCategoria.map(cat => {
+              {data.porCategoria.map(cat => {
                 const pct = totalGeral > 0 ? Math.round((Number(cat.total) / totalGeral) * 100) : 0
                 return (
                   <div key={cat.nome}>
@@ -130,7 +143,7 @@ export default function Dashboard() {
       </div>
 
       {/* Vencidas */}
-      {data!.vencidas.length > 0 && (
+      {data.vencidas.length > 0 && (
         <div className="card overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
             <h2 className="font-semibold text-sm text-red-500 flex items-center gap-2">
@@ -153,7 +166,7 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {data!.vencidas.map(c => {
+                {data.vencidas.map(c => {
                   const atraso = Math.floor((Date.now() - new Date(c.data_vencimento + 'T12:00:00').getTime()) / 86400000)
                   return (
                     <tr key={c.id} className="border-t border-gray-50 hover:bg-red-50/30">
