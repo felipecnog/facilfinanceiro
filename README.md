@@ -26,9 +26,9 @@ Conteúdo do `.env`:
 DB_HOST=erp-php_facilfinanceirosql
 DB_PORT=3306
 DB_NAME=erp-php
-DB_USER=facil1196
-DB_PASS=2509Thays@
-PORT=3001
+DB_USER=****
+DB_PASS=****
+PORT=***
 ```
 
 ```bash
